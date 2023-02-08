@@ -1,13 +1,14 @@
 <script setup>
 import { ref } from 'vue'
-import books from '../assets/bookData'
+// import books from '../assets/bookData'
 import BookListItem from '@/components/BookListItem.vue';
 import useSWRV from 'swrv'
 
 const searchString = ref("")
 
 const fetcher = (search) => {
-    let url = new URL("https://www.googleapis.com/books/v1/volumes")
+    // const search = "cicd"
+    const url = new URL("https://www.googleapis.com/books/v1/volumes")
 
     const param = {
         q: search
@@ -15,7 +16,7 @@ const fetcher = (search) => {
 
 
     url.search = new URLSearchParams(param).toString()
-    fetch(url)
+    return fetch(url)
         .then((res) => {
             return res && res.json()
         }).then((data) => {
@@ -23,7 +24,8 @@ const fetcher = (search) => {
         })
 }
 
-// const { data, error } = useSWRV("cicd", fetcher)
+const { data, error } = useSWRV("docker", fetcher)
+console.log(data)
 
 </script>
 
@@ -50,15 +52,15 @@ const fetcher = (search) => {
 
         <!-- 検索フォーム -->
         <v-form>
-            <v-text-field prepend-inner-icon="mdi-magnify" label="書籍検索" placeholder="書籍名等を入力してください"
+            <v-text-field v-model="searchString" prepend-inner-icon="mdi-magnify" label="書籍検索" placeholder="書籍名等を入力してください"
                 clear-icon="mdi-close-circle" clearable></v-text-field>
         </v-form>
 
         <!-- 本一覧 -->
         <div v-if="error">failed to load</div>
-        <div v-if="!books">loading...</div>
+        <div v-if="!data">loading...</div>
         <div v-else>
-            <div v-for="book in books" :key="book">
+            <div v-for="book in data.items" :key="book">
                 <BookListItem :book=book />
             </div>
         </div>
